@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChannelList } from "stream-chat-react";
 import { ChannelFilters, ChannelOptions, ChannelSort } from "stream-chat";
+import NewChatDialog from "./NewChatDialog";
 
 export function AppSidebar() {
   const { user } = useUser();
@@ -48,9 +49,11 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
+              <NewChatDialog>
               <Button className="w-full" variant="outline">
                 Start New Chat
               </Button>
+              </NewChatDialog>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
