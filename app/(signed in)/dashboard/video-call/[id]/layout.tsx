@@ -16,6 +16,8 @@ import StatusCard from "@/components/StatusCard";
 import { AlertTriangle, Video } from "lucide-react";
 import { InlineSpinner } from "@/components/LoadingSpinner";
 
+import "@stream-io/video-react-sdk/dist/css/styles.css"
+
 if (!process.env.NEXT_PUBLIC_STREAM_API_KEY) {
   throw new Error("NEXT_PUBLIC_STREAM_API_KEY is not set");
 }
@@ -42,7 +44,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!user?.id) {
       throw new Error("User not authenticated");
     }
-    await CreateToken(user.id);
+    return await CreateToken(user.id);
   }, [user?.id]);
 
   useEffect(() => {
@@ -119,6 +121,7 @@ if (!client) {
       <StatusCard
         title="Initializing client..."
         description="Setting up video call connection..."
+        action={null}
         className="min-h-screen bg-blue-50"
       >
         <InlineSpinner size="lg" />
@@ -131,6 +134,8 @@ if (!client) {
       <StatusCard
         title="Joining call..."
         className="min-h-screen bg-green-50"
+        description=""   
+        action={null}
       >
         <div className="animate-bounce h-16 w-16 mx-auto">
           <div className="w-16 h-16 bg-green-200 rounded-full flex items-center justify-center">
