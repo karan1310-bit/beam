@@ -14,7 +14,9 @@ function Dashboard() {
   const { setOpen } = useSidebar();
 
   const handleCall = () => {
-    console.log("Calling...");
+    if (!channel) return;
+    router.push(`/dashboard/video-call/${channel.id}`);
+    setOpen(false);
   };
 
   const handleLeaveChat = async () => {
@@ -22,8 +24,6 @@ function Dashboard() {
     console.log("No active channel or user");
     return;
   }
-
-  // Confirm before leaving
   const confirm = window.confirm("Are you sure you want to leave the chat?");
   if (!confirm) return;
 
@@ -34,11 +34,9 @@ function Dashboard() {
     // Clear the active channel
     setActiveChannel(undefined);
 
-    // Redirect to dashboard after leaving
     router.push("/dashboard");
   } catch (error) {
     console.error("Error leaving chat:", error);
-    // You could add a toast notification here for better UX
   }
 };
 
