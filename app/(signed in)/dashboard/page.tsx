@@ -52,7 +52,7 @@ function Dashboard() {
                 ) : ( <ChannelHeader />
                 )}
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row items-center gap-2">
                   <Button variant="outline" onClick={handleCall}>
                     <VideoIcon className="w-4 h-4" />
                     Video Call
