@@ -1,7 +1,143 @@
-import React from 'react'
+"use client";
 
-export default function page() {
+import {
+  CallControls,
+  CallingState,
+  SpeakerLayout,
+  useCallStateHooks,
+} from "@stream-io/video-react-sdk";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { Check, Copy } from "lucide-react";
+import { useSidebar } from "@/components/ui/sidebar";
+import StatusCard from "@/components/StatusCard";
+import { InlineSpinner } from "@/components/LoadingSpinner";
+
+
+function VideoCall() {
+  const { useCallCallingState, useParticipants } = useCallStateHooks();
+  const callingState = useCallCallingState();
+  const participants = useParticipants();
+  const router = useRouter();
+  const [copied, setCopied] = useState(false);
+  const {setOpen} = useSidebar();
+
+  const handleLeave = () => {
+    router.push("/dashboard");
+    setOpen(true); // Assuming this is meant to open a sidebar or similar UI element after leaving
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  if (callingState === CallingState.JOINING) {
+    return (
+      <StatusCard
+        title="Joining call..."
+        description="Please wait while we connect you to the call."
+        className="bg-gray-50 rounded-lg"
+        action={null}>
+        <InlineSpinner size="lg" />
+      </StatusCard>
+    );
+  }
+
+  if (callingState === CallingState.RECONNECTING) {
+    return (
+      <StatusCard
+        title="Reconnecting..."
+        description="Connection lost, attempting to reconnect."
+        className="bg-yellow-50 rounded-lg border border-yellow-200"
+        action={null}
+      >
+        <div className="animate-pulse rounded-full h-12 w-12 bg-yellow-400 mx-auto" />
+      </StatusCard>
+    );
+  }
+
+  if (callingState === CallingState.JOINED) {
+    // This seems to be a redundant loading state after JOINED, likely for when video is still loading
+    return (
+      <StatusCard
+        title="Loading call..."
+        description={`Status: ${callingState}`}
+        className="bg-gray-50 rounded-lg"
+        action={null}
+      >
+        <div className="animate-pulse rounded-full h-12 w-12 bg-gray-400 mx-auto" />
+      </StatusCard>
+    );
+  }
+
   return (
-    <div>page</div>
-  )
+    <div className="flex flex-col flex-1">
+      <div className="flex-1 relative">
+        <SpeakerLayout />
+      </div>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+        <CallControls onLeave={handleLeave} />
+      </div>
+
+      {/* Waiting for Participants Screen */}
+      {participants.length <= 1 && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+            {/* Header/Copy Link Section */}
+            <div className="text-center space-y-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                <Copy className="w-8 h-8 text-blue-600" />
+              </div>
+
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Waiting for others to join
+                </h2>
+                <p className="text-gray-600">
+                  Share this link with others to invite them to the call
+                </p>
+              </div>
+
+              {/* Link Display and Copy Button */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 text-sm text-gray-700 font-mono break-all">
+                    {window.location.href}
+                  </div>
+                  <button
+                    onClick={copyToClipboard}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy Link
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Others will be able to join using this link
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
+
+export default VideoCall;
